@@ -56,3 +56,47 @@ export function formatMessageTime(timestamp: number): string {
 
   return `${dateStr}, ${time}`;
 }
+
+
+
+
+
+/**
+ * Formats timestamp for sidebar / conversation preview.
+ *
+ * Rules:
+ * - Today        → "2:34 PM"
+ * - Same year    → "Feb 15"
+ * - Different yr → "Feb 15, 2023"
+ */
+export function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp);
+  const now = new Date();
+
+  const isToday = date.toDateString() === now.toDateString();
+  const isThisYear = date.getFullYear() === now.getFullYear();
+
+  // If message was sent today → show only time
+  if (isToday) {
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
+  // If within current year → show short date
+  if (isThisYear) {
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  // Older than current year → include year
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
