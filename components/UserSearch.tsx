@@ -82,7 +82,7 @@ export default function UserSearch({ onClose }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <p className="text-gray-400 font-semibold text-sm">No one's around.</p>
+            <p className="text-gray-400 font-semibold text-sm">No one&lsquo;s around.</p>
             <p className="text-slate-600 text-xs mt-1">
               {search ? `Wumpus couldn't find "${search}"` : "Try searching for a username."}
             </p>

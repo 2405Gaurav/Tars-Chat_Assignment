@@ -205,3 +205,27 @@ export const toggleReaction = mutation({
     await ctx.db.patch(messageId, { reactions: newReactions });
   },
 });
+
+
+
+
+//at last deelte the message ,gtgtgt heheh 
+export const deleteMessage = mutation({
+  args: { messageId: v.id("messages") },
+  handler: async (ctx, { messageId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!me) throw new Error("User not found");
+
+    const msg = await ctx.db.get(messageId);
+    if (!msg) throw new Error("Message not found");
+    if (msg.senderId !== me._id) throw new Error("Not your message");
+
+    await ctx.db.patch(messageId, { isDeleted: true });
+  },
+});

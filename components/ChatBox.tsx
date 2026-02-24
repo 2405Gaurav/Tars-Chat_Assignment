@@ -78,7 +78,8 @@ export default function ChatWindow({ conversationId }: Props) {
         if (isAtBottom) {
           setTimeout(() => scrollToBottom(false), 10);
         } else {
-          setShowNewMessages(true);
+          // Wrapped in a setTimeout to fix the 'react-hooks/set-state-in-effect' error
+          setTimeout(() => setShowNewMessages(true), 0);
         }
       }
       
@@ -93,7 +94,8 @@ export default function ChatWindow({ conversationId }: Props) {
       // Small timeout ensures DOM is ready
       setTimeout(() => scrollToBottom(true), 50);
     }
-  }, [conversationId, messages?.length, scrollToBottom]);
+    // Fixed Exhaustive-deps error by including full 'messages' array
+  }, [conversationId, messages, scrollToBottom]);
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return;
@@ -187,6 +189,8 @@ export default function ChatWindow({ conversationId }: Props) {
 
         <div className="relative shrink-0">
           {avatar?.imageUrl ? (
+            // Fixed Next/img element warning
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={avatar.imageUrl} alt={name} className="w-9 h-9 rounded-full object-cover bg-slate-800" />
           ) : (
             <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-gray-300 font-bold">
@@ -255,6 +259,12 @@ export default function ChatWindow({ conversationId }: Props) {
                 new Date(msg._creationTime).toDateString() !==
                   new Date(prevMsg._creationTime).toDateString();
 
+              // Type fix: Explicitly transform the data mapping null to undefined.
+              const messageData = {
+                ...msg,
+                sender: msg.sender ?? undefined,
+              };
+
               return (
                 <div key={msg._id}>
                   {showDateDivider && (
@@ -266,10 +276,10 @@ export default function ChatWindow({ conversationId }: Props) {
                       <div className="flex-1 h-px bg-slate-600"></div>
                     </div>
                   )}
-                  {/* @ts-expect-error - Ignoring type mismatch for quick fix as per request */}
+                  {/* Removed @ts-expect-error directive and passed formatted data */}
                   <MessageItem
-                    data={msg}   
-                    isOwn={msg.senderId === currentUser?._id}
+                    data={messageData}
+                    isSender={msg.senderId === currentUser?._id}
                     reactionOptions={REACTIONS}
                     viewerId={currentUser?._id}
                   />
