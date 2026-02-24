@@ -32,7 +32,7 @@ export default function MessageBubble({
   };
 
   const activeReactions =
-    data.reactions?.filter((r) => r.userIds.length > 0) ?? [];
+    data.reactionOptions?.filter((r) => r.userIds.length > 0) ?? [];
 
   return (
     <div

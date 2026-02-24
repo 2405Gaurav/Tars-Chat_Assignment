@@ -123,3 +123,35 @@ export const getTypingUsers = query({
     return users.filter(Boolean);
   },
 });
+
+
+export const markAsRead = mutation({
+  args: { conversationId: v.id("conversations") },
+  handler: async (ctx, { conversationId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!me) return;
+
+    const existing = await ctx.db
+      .query("readReceipts")
+      .withIndex("by_conversation_user", (q) =>
+        q.eq("conversationId", conversationId).eq("userId", me._id)
+      )
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, { lastReadTime: Date.now() });
+    } else {
+      await ctx.db.insert("readReceipts", {
+        conversationId,
+        userId: me._id,
+        lastReadTime: Date.now(),
+      });
+    }
+  },
+});
