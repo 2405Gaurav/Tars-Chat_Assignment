@@ -15,4 +15,16 @@ export default defineSchema({
   })
     .index("by_clerk_id", ["clerkId"])
     .index("by_email", ["email"]),
+    
+    
+    //now createing the DB for the convestion between user ,for this we will have to create doff fot individual and 
+    //and then btw the groupsss
+    conversations: defineTable({
+        participants: v.array(v.id("users")),
+        isGroup: v.boolean(),//later when we will implement the group chat we will set this to true and for the individual chat it will be false
+        groupName: v.optional(v.string()),
+        lastMessageTime: v.optional(v.number()),
+        lastMessagePreview: v.optional(v.string()),
+    }).index("by_last_message", ["lastMessageTime"]),
+    
 });
