@@ -246,7 +246,7 @@ export default function ChatWindow({ conversationId }: Props) {
                   <MessageItem
                     message={msg}
                     isOwn={msg.senderId === currentUser?._id}
-                    allowedReactions={ALLOWED_REACTIONS}
+                    allowedReactions={REACTIONS}
                     currentUserId={currentUser?._id}
                   />
                 </div>

@@ -13,7 +13,7 @@ interface MessageBubbleProps {
     };
   };
   isSender: boolean;
-  reactionOptions: string[];
+  reactionOptions: any[];
   viewerId?: Id<"users">;
 }
 
@@ -23,14 +23,9 @@ export default function MessageBubble({
   reactionOptions,
   viewerId,
 }: MessageBubbleProps) {
-  const removeMessage = useMutation(api.messages.deleteMessage);
-  const reactToMessage = useMutation(api.messages.toggleReaction);
+ 
 
-  const handleDelete = async () => {
-    if (confirm("Delete this message?")) {
-      await removeMessage({ messageId: data._id });
-    }
-  };
+ 
 
   const handleReact = async (emoji: string) => {
     await reactToMessage({ messageId: data._id, emoji });
@@ -109,14 +104,7 @@ export default function MessageBubble({
             </div>
           )}
 
-          {!data.isDeleted && isSender && (
-            <button
-              onClick={handleDelete}
-              className="absolute -bottom-2 -left-2 hidden group-hover:block bg-white rounded-full shadow p-1 text-gray-400 hover:text-red-500 transition"
-            >
-              🗑
-            </button>
-          )}
+         
         </div>
 
         {activeReactions.length > 0 && (
