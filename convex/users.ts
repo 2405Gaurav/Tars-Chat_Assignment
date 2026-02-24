@@ -1,4 +1,4 @@
-import { mutation,query, } from "./_generated/server";
+import { mutation,query,internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
 
@@ -115,6 +115,61 @@ export const getCurrentUser = query({
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
     return user;
+  },
+});
+
+
+
+
+export const syncFromWebhook = internalMutation({
+  args: {
+    payloadString: v.string(),
+    svixId: v.string(),
+    svixTimestamp: v.string(),
+    svixSignature: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // In production, verify the Svix signature here
+    const payload = JSON.parse(args.payloadString);
+    const { type, data } = payload;
+
+    if (type === "user.created" || type === "user.updated") {
+      const clerkId = data.id;
+      const name =
+        `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim() ||
+        data.username ||
+        "Unknown";
+      const email = data.email_addresses?.[0]?.email_address ?? "";
+      const imageUrl = data.image_url;
+
+      const existing = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+        .unique();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, { name, email, imageUrl });
+      } else {
+        await ctx.db.insert("users", {
+          clerkId,
+          name,
+          email,
+          imageUrl,
+          isOnline: false,
+          lastSeen: Date.now(),
+        });
+      }
+    } else if (type === "user.deleted") {
+      const existing = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", data.id))
+        .unique();
+      if (existing) {
+        await ctx.db.delete(existing._id);
+      }
+    }
+
+    return { success: true };
   },
 });
 

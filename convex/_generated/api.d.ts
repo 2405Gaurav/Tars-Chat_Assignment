@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as http from "../http.js";
 import type * as messages from "../messages.js";
 import type * as users from "../users.js";
 import type * as users_conversations from "../users_conversations.js";
@@ -19,6 +20,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  http: typeof http;
   messages: typeof messages;
   users: typeof users;
   users_conversations: typeof users_conversations;
