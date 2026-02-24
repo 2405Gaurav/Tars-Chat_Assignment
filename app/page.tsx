@@ -1,63 +1,112 @@
-import Image from "next/image";
+import Link from "next/link";
+import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
+      {/* Navigation Bar */}
+      <nav className="border-b border-blue-100 bg-white/80 backdrop-blur-md fixed top-0 w-full z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+          {/* Brand/Logo */}
+          <div className="flex items-center gap-2">
+            <div className="bg-blue-600 p-1.5 rounded-lg">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 text-white"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold tracking-tight text-blue-900">
+              TARS
+            </span>
+          </div>
+
+          {/* Auth Buttons / Navbar links */}
+          <div className="flex items-center gap-4">
+            <SignedIn>
+              <Link
+                href="/chat"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Go to Chat
+              </Link>
+            </SignedIn>
+            
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                  Sign In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="text-sm font-medium bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all shadow-sm hover:shadow-md">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 flex flex-col items-center text-center justify-center min-h-[90vh]">
+        
+        {/* Small Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold mb-8 border border-blue-100 shadow-sm">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+          </span>
+          Internship Coding Challenge 2026
+        </div>
+
+        {/* Main Heading */}
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6">
+          TARS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Assignment</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+          A real-time Live chat messaging web app built using Next.js, TypeScript, Convex, and Clerk. Connect, discover users, and message them seamlessly.
+        </p>
+
+        {/* Call to Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
+          <SignedIn>
+            <Link
+              href="/chat"
+              className="group flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3.5 rounded-full font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg text-lg w-full sm:w-auto"
+            >
+              Open Chatroom
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </Link>
+          </SignedIn>
+
+          <SignedOut>
+            <SignUpButton mode="modal">
+              <button className="group flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3.5 rounded-full font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg text-lg w-full sm:w-auto">
+                Get Started
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </SignUpButton>
+            
+            <SignInButton mode="modal">
+              <button className="flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-3.5 rounded-full font-medium hover:bg-slate-50 hover:border-blue-200 hover:text-blue-600 transition-all text-lg w-full sm:w-auto">
+                Sign in to account
+              </button>
+            </SignInButton>
+          </SignedOut>
         </div>
       </main>
     </div>
