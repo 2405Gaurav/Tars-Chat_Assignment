@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export default function Home() {
   return (
@@ -31,15 +31,19 @@ export default function Home() {
 
           {/* Auth Buttons / Navbar links */}
           <div className="flex items-center gap-4">
+            {/* What logged-in users see */}
             <SignedIn>
               <Link
                 href="/chat"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors mr-2"
               >
                 Go to Chat
               </Link>
+              {/* This adds the Profile picture with a Sign Out option */}
+              <UserButton afterSignOutUrl="/" />
             </SignedIn>
             
+            {/* What logged-out users see */}
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
