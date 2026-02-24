@@ -23,8 +23,9 @@ export default function ChatWindow({ conversationId }: Props) {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [showNewMessages, setShowNewMessages] = useState(false);
   
-  // Use a Ref to track previous message count to avoid triggering re-renders in useEffect
+  // Refs for tracking scroll and initial load
   const prevMessageCountRef = useRef(0);
+  const initialLoadRef = useRef(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -42,69 +43,58 @@ export default function ChatWindow({ conversationId }: Props) {
   const currentUser = conversation?.me;
 
   // Optimized Scroll Logic
-  const scrollToBottom = useCallback((force = false) => {
-    if (!scrollContainerRef.current) return;
+  const scrollToBottom = useCallback((smooth = true) => {
+    if (!scrollContainerRef.current || !messagesEndRef.current) return;
     
-    // We can't scroll if elements aren't rendered yet
-    if (!messagesEndRef.current) return;
-
-    if (force) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // Instant for load
-      return;
-    }
-
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-
-    // If user is already near bottom (within 100px), scroll to new message
-    if (distanceFromBottom < 150) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      setShowNewMessages(false);
-    }
+    messagesEndRef.current.scrollIntoView({ 
+      behavior: smooth ? "smooth" : "auto" 
+    });
+    
+    // Once we scroll down, we are at the bottom, so hide the button
+    setShowNewMessages(false);
   }, []);
 
-  // Handle New Messages & Read Status
+  // Handle Scroll Events
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    
+    // If user is within 150px of the bottom, consider them "at the bottom"
+    const atBottom = scrollHeight - scrollTop - clientHeight < 150;
+    
+    setIsAtBottom(atBottom);
+    if (atBottom) setShowNewMessages(false);
+  };
+
+  // The Brains: Handle New Messages & Initial Load
   useEffect(() => {
     if (messages) {
       // 1. Mark as read
       markAsRead({ conversationId }).catch(() => {});
 
-      // 2. Handle Scrolling
       const count = messages.length;
       const prevCount = prevMessageCountRef.current;
 
-      if (count > prevCount) {
-        // New message arrived
+      // 2. Handle Scrolling
+      if (initialLoadRef.current && count > 0) {
+        // First time loading the chat -> Instant scroll to bottom
+        setTimeout(() => scrollToBottom(false), 50);
+        initialLoadRef.current = false;
+      } else if (count > prevCount) {
+        // A new message arrived!
         if (isAtBottom) {
-          setTimeout(() => scrollToBottom(false), 10);
+          // User is at the bottom -> Auto-scroll smoothly
+          setTimeout(() => scrollToBottom(true), 100);
         } else {
-          // Wrapped in a setTimeout to fix the 'react-hooks/set-state-in-effect' error
+          // User scrolled up to read history -> Show button
           setTimeout(() => setShowNewMessages(true), 0);
         }
       }
       
-      // Update ref
+      // Update ref for the next render
       prevMessageCountRef.current = count;
     }
   }, [messages, conversationId, markAsRead, isAtBottom, scrollToBottom]);
-
-  // Initial Scroll on Load
-  useEffect(() => {
-    if (messages && messages.length > 0) {
-      // Small timeout ensures DOM is ready
-      setTimeout(() => scrollToBottom(true), 50);
-    }
-    // Fixed Exhaustive-deps error by including full 'messages' array
-  }, [conversationId, messages, scrollToBottom]);
-
-  const handleScroll = () => {
-    if (!scrollContainerRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-    const atBottom = scrollHeight - scrollTop - clientHeight < 100;
-    
-    setIsAtBottom(atBottom);
-    if (atBottom) setShowNewMessages(false);
-  };
 
   const handleSend = async () => {
     const content = input.trim();
@@ -119,6 +109,7 @@ export default function ChatWindow({ conversationId }: Props) {
 
     try {
       await sendMessage({ conversationId, content });
+      // Always scroll to bottom when *you* send a message
       setTimeout(() => scrollToBottom(true), 10);
     } catch {
       setSendError("Failed to send.");
@@ -173,7 +164,9 @@ export default function ChatWindow({ conversationId }: Props) {
   const { name, subtitle, avatar, isOnline } = getHeaderInfo();
 
   return (
-    <div className="flex flex-col h-full bg-slate-700">
+    // Added 'relative' here so the absolute toast button positions properly over the chat area
+    <div className="relative flex flex-col h-full bg-slate-700">
+      
       {/* Header - Discord Dark Theme */}
       <div 
         className="flex items-center gap-3 px-4 py-3 bg-slate-900 shadow-md z-10 border-b border-slate-950" 
@@ -189,7 +182,6 @@ export default function ChatWindow({ conversationId }: Props) {
 
         <div className="relative shrink-0">
           {avatar?.imageUrl ? (
-            // Fixed Next/img element warning
             // eslint-disable-next-line @next/next/no-img-element
             <img src={avatar.imageUrl} alt={name} className="w-9 h-9 rounded-full object-cover bg-slate-800" />
           ) : (
@@ -224,7 +216,7 @@ export default function ChatWindow({ conversationId }: Props) {
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-1 relative custom-scrollbar"
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-1 custom-scrollbar"
       >
         {messages === undefined ? (
           // Dark Mode Skeleton
@@ -276,7 +268,6 @@ export default function ChatWindow({ conversationId }: Props) {
                       <div className="flex-1 h-px bg-slate-600"></div>
                     </div>
                   )}
-                  {/* Removed @ts-expect-error directive and passed formatted data */}
                   <MessageItem
                     data={messageData}
                     isSender={msg.senderId === currentUser?._id}
@@ -293,22 +284,20 @@ export default function ChatWindow({ conversationId }: Props) {
               <TypingIndicator users={typingUsers as any[]} />
             )}
             
+            {/* Invisible anchor for scrolling to bottom */}
             <div ref={messagesEndRef} className="h-px" />
           </>
         )}
       </div>
 
-      {/* New Messages Toast */}
+      {/* New Messages Floating Button */}
       {showNewMessages && (
-        <div className="absolute bottom-24 right-4 z-20">
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30">
           <button
             onClick={() => scrollToBottom(true)}
-            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded shadow-lg text-xs font-bold uppercase tracking-wide hover:bg-indigo-500 transition-colors animate-bounce"
+            className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-full shadow-lg shadow-indigo-500/30 text-xs font-bold tracking-wide hover:bg-indigo-500 hover:-translate-y-1 transition-all animate-bounce"
           >
-            New Messages
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-            </svg>
+            ↓ New Messages
           </button>
         </div>
       )}
