@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery,} from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -15,15 +15,17 @@ interface Props {
 export default function UserSearch({ onClose, onSelectUser }: Props) {
   const [search, setSearch] = useState("");
   const router = useRouter();
-  const users = useQuery(api.users.listAllUsers, { search: search || undefined });//from the convexxx
+  const getOrCreateDM = useMutation(api.users_conversations.getOrCreateDM);
 
+  const users = useQuery(api.users.listAllUsers, { search: search || undefined });
   
 
 
   const handleSelectUser = async (userId: Id<"users">) => {
     try {
-     //now we will create the converstation btw the botht user lets get to backend for this 
-     //now the mainf part begin for me,
+      const convId = await getOrCreateDM({ otherUserId: userId });
+      router.push(`/chat/${convId}`);
+      onClose();
     } catch (err) {
       console.error(err);
     }
