@@ -248,7 +248,7 @@ export default function ChatWindow({ conversationId }: Props) {
           </div>
         ) : (
           <>
-            {messages.map((msg, idx) => {
+            {messages.filter(Boolean).map((msg, idx) => {
               const prevMsg = messages[idx - 1];
               const showDateDivider =
                 !prevMsg ||
@@ -268,10 +268,10 @@ export default function ChatWindow({ conversationId }: Props) {
                   )}
                   {/* @ts-expect-error - Ignoring type mismatch for quick fix as per request */}
                   <MessageItem
-                    message={msg} 
+                    data={msg}   
                     isOwn={msg.senderId === currentUser?._id}
-                    allowedReactions={REACTIONS}
-                    currentUserId={currentUser?._id}
+                    reactionOptions={REACTIONS}
+                    viewerId={currentUser?._id}
                   />
                 </div>
               );

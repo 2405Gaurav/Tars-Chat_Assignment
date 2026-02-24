@@ -30,9 +30,10 @@ export default function MessageBubble({
   const handleReact = async (emoji: string) => {
     await reactToMessage({ messageId: data._id, emoji });
   };
+  const reactToMessage = useMutation(api.messages.toggleReaction);
 
-  const activeReactions =
-    data.reactionOptions?.filter((r) => r.userIds.length > 0) ?? [];
+const activeReactions =
+  data.reactions?.filter((r) => r.userIds.length > 0) ?? [];
 
   return (
     <div

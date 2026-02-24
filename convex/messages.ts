@@ -155,3 +155,53 @@ export const markAsRead = mutation({
     }
   },
 });
+
+//chenge the reacton on the message like if the user has already react with the same emoji then remove it and if not then add it to the message
+export const toggleReaction = mutation({
+  args: {
+    messageId: v.id("messages"),
+    emoji: v.string(),
+  },
+  handler: async (ctx, { messageId, emoji }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!me) throw new Error("User not found");
+
+    const msg = await ctx.db.get(messageId);
+    if (!msg) throw new Error("Message not found");
+
+    const reactions = msg.reactions ?? [];
+    const existing = reactions.find((r) => r.emoji === emoji);
+
+    let newReactions;
+    if (existing) {
+      const hasReacted = existing.userIds.includes(me._id);
+      if (hasReacted) {
+        // Remove reaction
+        const newUserIds = existing.userIds.filter((id) => id !== me._id);
+        if (newUserIds.length === 0) {
+          newReactions = reactions.filter((r) => r.emoji !== emoji);
+        } else {
+          newReactions = reactions.map((r) =>
+            r.emoji === emoji ? { ...r, userIds: newUserIds } : r
+          );
+        }
+      } else {
+        newReactions = reactions.map((r) =>
+          r.emoji === emoji
+            ? { ...r, userIds: [...r.userIds, me._id] }
+            : r
+        );
+      }
+    } else {
+      newReactions = [...reactions, { emoji, userIds: [me._id] }];
+    }
+
+    await ctx.db.patch(messageId, { reactions: newReactions });
+  },
+});
