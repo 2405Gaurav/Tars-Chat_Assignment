@@ -29,7 +29,7 @@ export default function ChatWindow({ conversationId }: Props) {
   const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const conversation = useQuery(api.conversations.getConversation, { conversationId });
+  const conversation = useQuery(api.users_conversations.getConversation, { conversationId });
   const messages = useQuery(api.messages.listMessages, { conversationId });
   const typingUsers = useQuery(api.messages.getTypingUsers, { conversationId });
 

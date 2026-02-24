@@ -13,6 +13,6 @@ export default function ConversationPage({
 }) {
   const { conversationId } = use(params);
   return (
-    <ChatBox conversationId={conversationId as Id<"conversations">} />
+    <ChatBox conversationId={conversationId as Id<"users_conversations">} />
   );
 }
