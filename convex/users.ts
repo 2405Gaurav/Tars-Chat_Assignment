@@ -95,7 +95,14 @@ export const setPresence = mutation({
 
 
 
-
+///for the individual chat we will have to check if the conversation already exist between the two user if yes we will return the conversation id if
+//  not we will create a new conversation and return its id,to the [conversation] hehehe
+export const getUserById = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db.get(userId);
+  },
+});
 
 
 
