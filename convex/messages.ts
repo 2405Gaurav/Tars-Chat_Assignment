@@ -1,0 +1,60 @@
+import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
+// Sending the message  based in the ID,be it Individual and group 
+export const sendMessage = mutation({
+  args: {
+    conversationId: v.id("conversations"),
+    content: v.string(),
+  },
+  handler: async (ctx, { conversationId, content }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!me) throw new Error("User not found");
+
+    const msgId = await ctx.db.insert("messages", {
+      conversationId,
+      senderId: me._id,
+      content,
+      isDeleted: false,
+      reactions: [],
+    });
+
+    // Update conversation last message
+    await ctx.db.patch(conversationId, {
+      lastMessageTime: Date.now(),
+      lastMessagePreview: content.slice(0, 100),
+    });
+
+   
+
+    return msgId;
+  },
+});
+
+// List messages in a conversation
+export const listMessages = query({
+  args: { conversationId: v.id("conversations") },
+  handler: async (ctx, { conversationId }) => {
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_conversation", (q) =>
+        q.eq("conversationId", conversationId)
+      )
+      .order("asc")
+      .collect();
+
+    const enriched = await Promise.all(
+      messages.map(async (msg) => {
+        const sender = await ctx.db.get(msg.senderId);
+        return { ...msg, sender };
+      })
+    );
+
+    return enriched;
+  },
+});

@@ -3,7 +3,7 @@
 "use client";
 
 import { use } from "react";
-import ChatBOx from "@/components/ChatWindow";
+import ChatBox from "@/components/ChatBox";
 import { Id } from "@/convex/_generated/dataModel";
 
 export default function ConversationPage({
