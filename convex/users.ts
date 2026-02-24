@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation,query, } from "./_generated/server";
 import { v } from "convex/values";
 
 
@@ -45,6 +45,32 @@ export const upsertUser = mutation({
       console.log("upsertUser - created new user:", newId);
       return newId;
     }
+  },
+});
+
+
+//to get the connect witht other user ,we will nedd to list all the user ,
+
+// List all users except the current one
+export const listAllUsers = query({
+  args: { search: v.optional(v.string()) },
+  handler: async (ctx, { search }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    console.log("listUsers - identity:", identity?.subject);
+    if (!identity) return [];
+
+    const allUsers = await ctx.db.query("users").collect();
+    console.log("listUsers - all users count:", allUsers.length);
+    console.log("listUsers - all users:", allUsers);
+    const others = allUsers.filter((u) => u.clerkId !== identity.subject);
+    console.log("listUsers - others count:", others.length);
+
+    if (search && search.trim()) {
+      const lower = search.toLowerCase();
+      return others.filter((u) => u.name.toLowerCase().includes(lower));
+    }
+
+    return others;
   },
 });
 
