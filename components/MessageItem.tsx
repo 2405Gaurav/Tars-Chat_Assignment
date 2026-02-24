@@ -3,7 +3,7 @@
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { formatMessageTime } from "@/lib/utils";
+import { formatMessageTime } from "../libs/utils";
 
 interface MessageBubbleProps {
   data: Doc<"messages"> & {
@@ -13,7 +13,7 @@ interface MessageBubbleProps {
     };
   };
   isSender: boolean;
-  reactionOptions: any[];
+  reactionOptions: string[];
   viewerId?: Id<"users">;
 }
 
