@@ -62,3 +62,68 @@ export const getConversation = query({
     };
   },
 });
+
+
+export const listConversations = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!me) return [];
+
+    const allConvos = await ctx.db
+      .query("conversations")
+      .order("desc")
+      .collect();
+
+    const myConvos = allConvos.filter((c) => c.participants.includes(me._id));
+
+    // Enrich with participant info and unread count
+    const enriched = await Promise.all(
+      myConvos.map(async (convo) => {
+        const participants = await Promise.all(
+          convo.participants.map((id) => ctx.db.get(id))
+        );
+
+        // Get unread count
+        const readReceipt = await ctx.db
+          .query("readReceipts")
+          .withIndex("by_conversation_user", (q) =>
+            q.eq("conversationId", convo._id).eq("userId", me._id)
+          )
+          .unique();
+
+        const lastReadTime = readReceipt?.lastReadTime ?? 0;
+
+        // Count messages after lastReadTime not from me
+        const messages = await ctx.db
+          .query("messages")
+          .withIndex("by_conversation", (q) =>
+            q.eq("conversationId", convo._id)
+          )
+          .collect();
+
+        const unreadCount = messages.filter(
+          (m) =>
+            m._creationTime > lastReadTime &&
+            m.senderId !== me._id &&
+            !m.isDeleted
+        ).length;
+
+        return {
+          ...convo,
+          participants: participants.filter(Boolean),
+          unreadCount,
+          me,
+        };
+      })
+    );
+
+    return enriched;
+  },
+});

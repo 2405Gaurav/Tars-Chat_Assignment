@@ -43,5 +43,14 @@ export default defineSchema({
     ),
   }).index("by_conversation", ["conversationId"]),
 
-    
+   ///extra feature ,adding the read receipts, to  
+   //   show the read receipts when the user has read the message
+    readReceipts: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users"),
+    lastReadTime: v.number(),
+  })
+    .index("by_conversation_user", ["conversationId", "userId"])
+    .index("by_user", ["userId"]),
+
 });
