@@ -4,54 +4,51 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@cl
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
-      {/* Navigation Bar */}
-      <nav className="border-b border-blue-100 bg-white/80 backdrop-blur-md fixed top-0 w-full z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-          {/* Brand/Logo */}
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600 p-1.5 rounded-lg">
+    // Base: Discord-like dark gray background (#36393f approx) and white text
+    <div className="min-h-screen bg-slate-800 text-gray-100 font-sans selection:bg-indigo-500 selection:text-white">
+      
+      {/* Navigation Bar - Darker tone (#202225 approx) */}
+      <nav className="bg-slate-900 border-b border-slate-900/50 fixed top-0 w-full z-50 h-16 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
+          
+          {/* Brand/Logo - Simple & Bold */}
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-500 p-1.5 rounded-md shadow-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                fill="currentColor"
                 className="w-5 h-5 text-white"
               >
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             </div>
-            <span className="text-xl font-bold tracking-tight text-blue-900">
-              TARS
+            <span className="text-xl font-extrabold tracking-tight text-white uppercase font-sans">
+              Tars
             </span>
           </div>
 
-          {/* Auth Buttons / Navbar links */}
+          {/* Auth Buttons */}
           <div className="flex items-center gap-4">
-            {/* What logged-in users see */}
             <SignedIn>
               <Link
                 href="/chat"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors mr-2"
+                className="text-sm font-medium text-gray-300 hover:text-white transition-colors hover:underline decoration-indigo-500 underline-offset-4 mr-2"
               >
-                Go to Chat
+                Open Chat
               </Link>
-              {/* This adds the Profile picture with a Sign Out option */}
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
             
-            {/* What logged-out users see */}
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-                  Sign In
+                <button className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                  Login
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="text-sm font-medium bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all shadow-sm hover:shadow-md">
+                {/* "Blurple" Button Style */}
+                <button className="text-sm font-medium bg-indigo-500 text-white px-4 py-1.5 rounded hover:bg-indigo-400 transition-all shadow-sm">
                   Sign Up
                 </button>
               </SignUpButton>
@@ -61,54 +58,50 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 flex flex-col items-center text-center justify-center min-h-[90vh]">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 flex flex-col items-center text-center justify-center min-h-[90vh]">
         
-        {/* Small Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold mb-8 border border-blue-100 shadow-sm">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+        {/* Status Badge - Darker container, Green 'Online' dot */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 text-gray-300 text-xs font-bold uppercase tracking-wide mb-8">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
           </span>
           Internship Coding Challenge 2026
         </div>
 
-        {/* Main Heading */}
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6">
-          TARS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Assignment</span>
+        {/* Main Heading - Heavy font weight */}
+        <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">
+          IMAGINE A <br />
+          <span className="text-indigo-400">PLACE...</span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-          A real-time Live chat messaging web app built using Next.js, TypeScript, Convex, and Clerk. Connect, discover users, and message them seamlessly.
+        {/* Subtitle - Softer gray (#dcddde approx) */}
+        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+          ...where you can belong to a school club, a gaming group, or a worldwide art community. 
+          Built with Next.js, Convex, and Clerk.
         </p>
 
-        {/* Call to Action Buttons */}
+        {/* Call to Action Buttons - Squarer, simple hover effects */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full sm:w-auto">
           <SignedIn>
             <Link
               href="/chat"
-              className="group flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3.5 rounded-full font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg text-lg w-full sm:w-auto"
+              className="bg-indigo-500 text-white px-8 py-3 rounded text-lg font-medium hover:bg-indigo-400 transition-all w-full sm:w-auto shadow-sm"
             >
-              Open Chatroom
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
+              Enter Tars
             </Link>
           </SignedIn>
 
           <SignedOut>
             <SignUpButton mode="modal">
-              <button className="group flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3.5 rounded-full font-medium hover:bg-blue-700 transition-all shadow-md hover:shadow-lg text-lg w-full sm:w-auto">
-                Get Started
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+              <button className="bg-indigo-500 text-white px-8 py-3 rounded text-lg font-medium hover:bg-indigo-400 transition-all w-full sm:w-auto shadow-sm">
+                Open in Browser
               </button>
             </SignUpButton>
             
             <SignInButton mode="modal">
-              <button className="flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-3.5 rounded-full font-medium hover:bg-slate-50 hover:border-blue-200 hover:text-blue-600 transition-all text-lg w-full sm:w-auto">
-                Sign in to account
+              <button className="bg-slate-700 text-white px-8 py-3 rounded text-lg font-medium hover:bg-slate-600 transition-all w-full sm:w-auto shadow-sm">
+                Sign In
               </button>
             </SignInButton>
           </SignedOut>
