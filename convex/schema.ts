@@ -26,5 +26,22 @@ export default defineSchema({
         lastMessageTime: v.optional(v.number()),
         lastMessagePreview: v.optional(v.string()),
     }).index("by_last_message", ["lastMessageTime"]),
+
+///messsage schenmaaa
+    messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.id("users"),
+    content: v.string(),
+    isDeleted: v.boolean(),
+    reactions: v.optional(
+      v.array(
+        v.object({
+          emoji: v.string(),
+          userIds: v.array(v.id("users")),
+        })
+      )
+    ),
+  }).index("by_conversation", ["conversationId"]),
+
     
 });

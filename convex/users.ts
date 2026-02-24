@@ -75,7 +75,23 @@ export const listAllUsers = query({
 });
 
 
-
+export const setPresence = mutation({
+  args: { isOnline: v.boolean() },
+  handler: async (ctx, { isOnline }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (user) {
+      await ctx.db.patch(user._id, {
+        isOnline,
+        lastSeen: Date.now(),
+      });
+    }
+  },
+});
 
 
 
