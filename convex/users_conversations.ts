@@ -128,3 +128,28 @@ export const listConversations = query({
   },
 });
 
+export const createGroup = mutation({
+  args: {
+    memberIds: v.array(v.id("users")),
+    groupName: v.string(),
+  },
+  handler: async (ctx, { memberIds, groupName }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!me) throw new Error("User not found");
+
+    const allParticipants = Array.from(new Set([me._id, ...memberIds]));
+
+    return await ctx.db.insert("conversations", {
+      participants: allParticipants,
+      isGroup: true,
+      groupName,
+      lastMessageTime: Date.now(),
+    });
+  },
+});

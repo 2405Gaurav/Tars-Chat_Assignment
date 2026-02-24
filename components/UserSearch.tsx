@@ -12,111 +12,133 @@ interface Props {
   onSelectUser: (userId: Id<"users">) => void;
 }
 
-export default function UserSearch({ onClose, onSelectUser }: Props) {
+export default function UserSearch({ onClose }: Props) {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const getOrCreateDM = useMutation(api.users_conversations.getOrCreateDM);
 
   const users = useQuery(api.users.listAllUsers, { search: search || undefined });
-  
-
 
   const handleSelectUser = async (userId: Id<"users">) => {
     try {
       const convId = await getOrCreateDM({ otherUserId: userId });
       router.push(`/chat/${convId}`);
-      onClose();
+      onClose(); // Close the search modal/view
     } catch (err) {
       console.error(err);
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-white">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-white shadow-sm">
-        <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg">
-          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div className="flex-1 relative">
+    <div className="flex-1 flex flex-col overflow-hidden bg-slate-900 h-full">
+      {/* Header / Search Bar */}
+      <div className="flex items-center gap-2 px-3 py-3 bg-slate-900 border-b border-slate-950 shadow-sm shrink-0">
+        <div className="flex-1 relative group">
           <input
             autoFocus
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search people..."
-            className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Where would you like to go?"
+            className="w-full pl-2 pr-8 py-1.5 bg-slate-950 text-gray-200 rounded text-sm placeholder:text-slate-500 border border-slate-800 focus:border-indigo-500 focus:outline-none transition-all"
           />
-          <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          {/* Search Icon (Right side like Discord) */}
+          <div className="absolute right-2 top-2">
+            {search ? (
+               <button onClick={() => setSearch("")} className="text-slate-500 hover:text-white">
+                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                 </svg>
+               </button>
+            ) : (
+                <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Results */}
-      <div className="flex-1 overflow-y-auto p-2">
+      {/* Results List */}
+      <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
         {users === undefined ? (
-          <div className="space-y-2 p-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-                <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-                <div>
-                  <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
-                  <div className="h-3 bg-gray-200 rounded w-32"></div>
+          // Dark Skeleton Loading
+          <div className="space-y-1">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-2 rounded animate-pulse">
+                <div className="w-9 h-9 bg-slate-800 rounded-full shrink-0"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-slate-800 rounded w-1/3"></div>
+                  <div className="h-2 bg-slate-800 rounded w-1/4"></div>
                 </div>
               </div>
             ))}
           </div>
         ) : users.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-              <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          // Empty State - Discord Style
+          <div className="flex flex-col items-center justify-center pt-10 text-center opacity-75">
+            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-3 grayscale">
+              <svg className="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
-            <p className="text-gray-600 font-medium">No users found</p>
-            <p className="text-gray-400 text-sm mt-1">
-              {search ? `No results for "${search}"` : "No other users yet"}
+            <p className="text-gray-400 font-semibold text-sm">No one's around.</p>
+            <p className="text-slate-600 text-xs mt-1">
+              {search ? `Wumpus couldn't find "${search}"` : "Try searching for a username."}
             </p>
           </div>
         ) : (
-          users.map((u) => (
-            <button
-              key={u._id}
-              onClick={() => handleSelectUser(u._id)}
-              className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors text-left"
-            >
-              <div className="relative flex-shrink-0">
-                {u.imageUrl ? (
-                  <img
-                    src={u.imageUrl}
-                    alt={u.name}
-                    className="w-11 h-11 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold">
-                    {u.name[0]?.toUpperCase()}
+          <div className="space-y-0.5">
+            {/* Header for results */}
+            <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                {search ? "Search Results" : "All Users"}
+            </div>
+            
+            {users.map((u) => (
+              <button
+                key={u._id}
+                onClick={() => handleSelectUser(u._id)}
+                className="w-full flex items-center gap-3 p-2 hover:bg-slate-800 rounded-md transition-colors text-left group"
+              >
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  {u.imageUrl ? (
+                    <img
+                      src={u.imageUrl}
+                      alt={u.name}
+                      className="w-9 h-9 rounded-full object-cover bg-slate-800"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                      {u.name[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  {/* Status Dot (Border matches bg) */}
+                  {u.isOnline && (
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-900 group-hover:border-slate-800 transition-colors"></div>
+                  )}
+                </div>
+
+                {/* User Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-gray-200 text-sm truncate group-hover:text-white">
+                        {u.name}
+                    </span>
+                    {u.isOnline && (
+                        <span className="text-[10px] text-green-500 font-bold uppercase tracking-wide">
+                            Online
+                        </span>
+                    )}
                   </div>
-                )}
-                {u.isOnline && (
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                )}
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 text-sm">{u.name}</p>
-                <p className="text-xs text-gray-400">{u.email}</p>
-              </div>
-              <div className="ml-auto">
-                {u.isOnline ? (
-                  <span className="text-xs text-green-500 font-medium">Online</span>
-                ) : (
-                  <span className="text-xs text-gray-400">Offline</span>
-                )}
-              </div>
-            </button>
-          ))
+                  {/* Email/Tag as secondary text */}
+                  <p className="text-xs text-slate-500 truncate group-hover:text-slate-400">
+                    {u.email}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>
