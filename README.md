@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🤖 Tars Chat
 
-## Getting Started
+A real-time live chat messaging web app built for the **Tars Full Stack Engineer Internship Coding Challenge 2026**.
 
-First, run the development server:
+🔗 **Live Demo:** [tarschat.thegauravthakur.in](https://tarschat.thegauravthakur.in)
+📁 **GitHub:** [github.com/2405Gaurav/Tars-Chat_Assignment](https://github.com/2405Gaurav/Tars-Chat_Assignment)
+👤 **Portfolio:** [thegauravthakur.in](https://thegauravthakur.in)
+
+---
+
+## ✨ Features
+
+- **Authentication** — Sign up / log in via Clerk (email + social login). User profiles stored in Convex.
+- **User Search** — Find and start conversations with any registered user.
+- **Real-time Messaging** — One-on-one direct messages powered by Convex subscriptions.
+- **Group Chat** — Create group conversations with multiple members and a custom name.
+- **Message Timestamps** — Smart formatting: time only for today, date + time for older messages.
+- **Online/Offline Status** — Live green indicator for users currently in the app.
+- **Typing Indicator** — Animated dots when the other user is typing, disappears after 2s.
+- **Unread Message Badges** — Per-conversation unread count, cleared on open.
+- **Smart Auto-Scroll** — Auto-scrolls on new messages; shows a "↓ New Messages" button when scrolled up.
+- **Message Reactions** — React to messages with emojis; click again to remove.
+- **Delete Messages** — Soft-delete your own messages; shows "This message was deleted."
+- **Empty & Loading States** — Skeleton loaders, helpful empty screens, and error handling throughout.
+- **Responsive Layout** — Sidebar + chat on desktop; full-screen chat with back button on mobile.
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Backend / Realtime | Convex |
+| Authentication | Clerk |
+| Styling | Tailwind CSS + shadcn/ui |
+| Deployment | Vercel |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/2405Gaurav/Tars-Chat_Assignment.git
+cd Tars-Chat_Assignment
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Set up environment variables
+
+Create a `.env.local` file in the root:
+
+```env
+NEXT_PUBLIC_CONVEX_URL=your_convex_deployment_url
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+```
+
+### 4. Run the Convex dev server
+
+```bash
+npx convex dev
+```
+
+### 5. Run the Next.js dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Project Structure
 
-## Learn More
+```
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/             # Clerk auth pages
+│   └── (main)/chat/        # Chat layout + conversation pages
+├── components/             # UI components
+│   ├── ChatBox.tsx         # Main chat window
+│   ├── SideBar.tsx         # App sidebar
+│   ├── MessageItem.tsx     # Individual message component
+│   ├── TypingIndicator.tsx # Typing animation
+│   ├── UserSearch.tsx      # User search UI
+│   └── CreateGroup.tsx     # Group creation UI
+├── convex/                 # Convex backend
+│   ├── schema.ts           # Database schema
+│   ├── messages.ts         # Message queries & mutations
+│   └── users_conversations.ts
+└── hooks/                  # Custom React hooks
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🧠 Built With AI Assistance
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This project was built using **Claude (Anthropic)** as an AI-assisted coding tool, as permitted by the challenge rules. All code has been reviewed, understood, and can be fully explained by the author.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📬 Submission
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built by **Gaurav Thakur** for the Tars Full Stack Engineer Internship Coding Challenge 2026.
