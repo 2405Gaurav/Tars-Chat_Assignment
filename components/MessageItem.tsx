@@ -4,6 +4,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { formatMessageTime } from "../libs/utils";
+import { useState } from "react";
 
 interface MessageBubbleProps {
   data: Doc<"messages"> & {
@@ -25,16 +26,28 @@ export default function MessageBubble({
 }: MessageBubbleProps) {
   const reactToMessage = useMutation(api.messages.toggleReaction);
   const deleteMessage = useMutation(api.messages.deleteMessage);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleReact = async (emoji: string) => {
     await reactToMessage({ messageId: data._id, emoji });
   };
 
-  const handleDelete = async () => {
-    if (confirm("Delete this message?")) {
-      await deleteMessage({ messageId: data._id });
-    }
-  };
+const handleDelete = async () => {
+  if (isDeleting) return;
+
+  const confirmed = window.confirm("Delete this message?");
+  if (!confirmed) return;
+
+  try {
+    setIsDeleting(true);
+    await deleteMessage({ messageId: data._id });
+    
+  } catch {
+   
+  } finally {
+    setIsDeleting(false);
+  }
+};
 
   const activeReactions =
     data.reactions?.filter((r) => r.userIds.length > 0) ?? [];
