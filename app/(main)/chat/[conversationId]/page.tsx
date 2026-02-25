@@ -12,7 +12,12 @@ export default function ConversationPage({
   params: Promise<{ conversationId: string }>;
 }) {
   const { conversationId } = use(params);
+
   return (
-    <ChatBox conversationId={conversationId as Id<"conversations">} />
+    <div className="h-screen flex">
+      <div className="flex-1 min-h-0 flex flex-col">
+        <ChatBox conversationId={conversationId as Id<"conversations">} />
+      </div>
+    </div>
   );
 }

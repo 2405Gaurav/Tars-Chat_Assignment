@@ -3,6 +3,18 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+/* Force sidebar to be in document flow, not fixed/absolute */
+[data-sidebar="sidebar"] {
+  position: relative !important;
+  height: 100vh !important;
+}
+
+/* Ensure the sidebar wrapper itself doesn't have fixed positioning */
+[data-slot="sidebar-container"],
+aside[data-sidebar] {
+  position: relative !important;
+  height: 100% !important;
+}
 
 @theme inline {
   --color-background: var(--background);
