@@ -9,6 +9,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Search, X, User, MessageSquare } from "lucide-react";
 
 interface Props {
+  currentUserId?: string;
   onClose: () => void;
   onSelectUser?: (userId: Id<"users">) => void;
 }
