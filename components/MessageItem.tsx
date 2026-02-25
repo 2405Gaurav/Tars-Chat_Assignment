@@ -32,7 +32,7 @@ export default function MessageBubble({
 
   const handleDelete = async () => {
     if (confirm("Delete this message?")) {
-      await deleteMessage({ messageId: data._id }); // FIXED: changed message._id to data._id
+      await deleteMessage({ messageId: data._id });
     }
   };
 
@@ -41,77 +41,84 @@ export default function MessageBubble({
 
   return (
     <div
-      className={`flex items-end gap-3 mb-2 relative ${
+      className={`flex items-end gap-3 mb-4 relative group/message ${
         isSender ? "flex-row-reverse" : "flex-row"
       }`}
     >
+      {/* Avatar (Only for Receiver) */}
       {!isSender && (
-        <div className="flex-shrink-0">
+        <div className="shrink-0 mb-1">
           {data.sender?.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={data.sender.imageUrl}
               alt={data.sender.name}
-              className="w-8 h-8 rounded-full object-cover"
+              className="w-8 h-8 rounded-full object-cover border-2 border-white/20 shadow-sm"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white text-xs font-bold">
               {data.sender?.name?.[0]?.toUpperCase() ?? "?"}
             </div>
           )}
         </div>
       )}
 
+      {/* Message Content Wrapper */}
       <div
-        className={`max-w-[70%] flex flex-col ${
+        className={`max-w-[75%] flex flex-col ${
           isSender ? "items-end" : "items-start"
         }`}
       >
+        {/* Sender Name (Only for Receiver) */}
         {!isSender && data.sender?.name && (
-          <span className="text-xs text-gray-500 mb-1 ml-1">
+          <span className="text-[10px] font-bold text-white/60 mb-1 ml-3 uppercase tracking-wider">
             {data.sender.name}
           </span>
         )}
 
-        {/* Outer wrapper tracks the hover state */}
-        <div className="relative group">
+        {/* BUBBLE CONTAINER */}
+        <div className="relative group/bubble">
+          
           {data.isDeleted ? (
+             // --- DELETED STATE ---
             <div
-              className={`px-4 py-2.5 rounded-2xl ${
-                isSender ? "rounded-br-sm" : "rounded-bl-sm"
-              } bg-gray-100`}
+              className={`px-4 py-2.5 rounded-2xl border border-white/5 ${
+                isSender ? "rounded-br-sm bg-white/10" : "rounded-bl-sm bg-black/10"
+              }`}
             >
-              <p className="text-sm text-gray-400 italic">
+              <p className="text-sm text-white/40 italic flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 This message was deleted
               </p>
             </div>
           ) : (
+             // --- ACTIVE MESSAGE STATE ---
             <div
-              className={`px-4 py-2.5 rounded-2xl shadow-sm ${
+              className={`px-5 py-3 rounded-2xl shadow-lg transition-all duration-200 ${
                 isSender
-                  ? "bg-blue-600 text-white rounded-br-sm"
-                  : "bg-gray-100 text-gray-900 rounded-bl-sm"
+                  ? "bg-white text-[#404EED] rounded-br-sm" // Sender: White Bubble, Blue Text
+                  : "bg-black/20 backdrop-blur-md text-white border border-white/10 rounded-bl-sm" // Receiver: Glass Bubble
               }`}
             >
-              <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+              <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words font-medium">
                 {data.content}
               </p>
             </div>
           )}
 
-          {/* Reaction picker - FIXED HOVER GAP */}
+          {/* --- HOVER ACTIONS (Reaction Picker) --- */}
           {!data.isDeleted && (
             <div
-              className={`absolute -top-12 hidden group-hover:flex pb-4 z-20 ${
+              className={`absolute -top-10 hidden group-hover/bubble:flex pb-2 z-30 transition-all ${
                 isSender ? "right-0" : "left-0"
               }`}
             >
-              <div className="flex items-center gap-1 bg-white rounded-xl shadow-lg border border-gray-100 px-2 py-1.5">
+              <div className="flex items-center gap-0.5 bg-[#36393f] p-1 rounded-full shadow-xl border border-white/10">
                 {reactionOptions.map((emoji) => (
                   <button
                     key={emoji}
-                    onClick={() => handleReact(emoji)} // FIXED: handleReaction to handleReact
-                    className="text-xl p-1 rounded-lg hover:bg-gray-50 hover:scale-125 hover:-translate-y-1 transition-all duration-200"
+                    onClick={() => handleReact(emoji)}
+                    className="text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 hover:scale-110 transition-all active:scale-95"
                     title={`React with ${emoji}`}
                   >
                     {emoji}
@@ -121,54 +128,54 @@ export default function MessageBubble({
             </div>
           )}
 
-          {/* Delete button - shows on hover for own messages */}
-          {!data.isDeleted && isSender && ( // FIXED: !message.isDeleted & isOwn to data/isSender
+          {/* --- DELETE BUTTON --- */}
+          {!data.isDeleted && isSender && (
             <button
               onClick={handleDelete}
-              className="absolute -bottom-2 -left-3 hidden group-hover:flex items-center justify-center w-7 h-7 bg-white border border-gray-100 rounded-full shadow-md text-gray-400 hover:text-red-600 hover:bg-red-50 hover:shadow-lg hover:scale-110 transition-all duration-200 z-30"
+              className="absolute top-1/2 -translate-y-1/2 -left-10 opacity-0 group-hover/bubble:opacity-100 flex items-center justify-center w-8 h-8 bg-red-500/20 text-red-200 rounded-full hover:bg-red-500 hover:text-white transition-all duration-200"
               title="Delete message"
             >
               <svg
-                className="w-3.5 h-3.5"
+                className="w-4 h-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
           )}
         </div>
 
+        {/* --- EXISTING REACTIONS DISPLAY --- */}
         {activeReactions.length > 0 && (
           <div
-            className={`flex flex-wrap gap-1 mt-1 ${
+            className={`flex flex-wrap gap-1.5 mt-2 ${
               isSender ? "justify-end" : "justify-start"
             }`}
           >
-            {activeReactions.map((r) => (
-              <button
-                key={r.emoji}
-                onClick={() => handleReact(r.emoji)}
-                className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition ${
-                  viewerId && r.userIds.includes(viewerId)
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                <span>{r.emoji}</span>
-                <span className="font-medium">{r.userIds.length}</span>
-              </button>
-            ))}
+            {activeReactions.map((r) => {
+               const iAmReacting = viewerId && r.userIds.includes(viewerId);
+               return (
+                <button
+                    key={r.emoji}
+                    onClick={() => handleReact(r.emoji)}
+                    className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full transition-all border ${
+                    iAmReacting
+                        ? "bg-white text-[#404EED] border-white shadow-sm" // Active: White pill
+                        : "bg-black/20 text-white/70 border-white/5 hover:bg-black/30 hover:border-white/20" // Inactive: Glass pill
+                    }`}
+                >
+                    <span>{r.emoji}</span>
+                    <span>{r.userIds.length}</span>
+                </button>
+               );
+            })}
           </div>
         )}
 
-        <span className="text-[10px] text-gray-400 mt-1">
+        {/* --- TIMESTAMP --- */}
+        <span className={`text-[10px] font-medium mt-1 opacity-60 ${isSender ? "text-white text-right" : "text-white ml-1"}`}>
           {formatMessageTime(data._creationTime)}
         </span>
       </div>
