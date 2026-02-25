@@ -61,7 +61,7 @@ export default function ChatWindow({ conversationId }: Props) {
     if (atBottom) setShowNewMessages(false);
   };
 
-  useEffect(() => {
+  useEffect(() =>{
     if (messages) {
       markAsRead({ conversationId }).catch(() => {});
       const count = messages.length;

@@ -13,11 +13,11 @@ export default function ConversationPage({
 }) {
   const { conversationId } = use(params);
 
+  // ✅ No h-screen wrapper here — the layout already handles full height.
+  // Just fill the parent flex container provided by ChatLayout > SidebarInset > main.
   return (
-    <div className="h-screen flex">
-      <div className="flex-1 min-h-0 flex flex-col">
-        <ChatBox conversationId={conversationId as Id<"conversations">} />
-      </div>
+    <div className="flex-1 h-full min-h-0 flex flex-col overflow-hidden">
+      <ChatBox conversationId={conversationId as Id<"conversations">} />
     </div>
   );
 }

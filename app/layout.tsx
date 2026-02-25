@@ -1,9 +1,9 @@
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ClerkProvider } from '@clerk/nextjs'
-import { ConvexClientProvider } from "@/components/ConvexClientProvider";//convex client provider is used to provide the convex client to the entire app
+import { ConvexClientProvider } from "@/components/ConvexClientProvider";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,13 +23,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
 
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+      <html lang="en" className="h-full">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
           <ConvexClientProvider>
-          
-            <main className="min-h-screen">{children}</main>
+            {/* ✅ h-full instead of min-h-screen so flex children can fill the viewport */}
+            <main className="h-full">{children}</main>
           </ConvexClientProvider>
         </body>
       </html>

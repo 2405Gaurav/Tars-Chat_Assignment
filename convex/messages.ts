@@ -67,7 +67,7 @@ export const setTyping = mutation({
     isTyping: v.boolean(), 
   },
   handler: async (ctx, { conversationId, isTyping }) => {
-    const identity = await ctx.auth.getUserIdentity();
+    const identity = await ctx.auth.getUserIdentity();//
     if (!identity) return;
 
     const me = await ctx.db
@@ -95,7 +95,7 @@ export const setTyping = mutation({
         });
       }
     } else {
-      // 👇 Immediately delete on stop/send
+      // Immediately delete on stop/send
       if (existing) {
         await ctx.db.delete(existing._id);
       }

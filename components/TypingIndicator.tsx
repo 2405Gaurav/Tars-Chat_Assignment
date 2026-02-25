@@ -38,7 +38,7 @@ export default function TypingIndicator({ users }: Props) {
 
       {/* Typing Bubble & Text */}
       <div className="flex flex-col">
-        <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 self-start w-fit shadow-lg relative">
+        <div className="bg-red-500 rounded-2xl rounded-tl-none px-4 py-3 self-start w-fit shadow-lg relative">
           <div className="flex gap-1 items-center h-2">
             <span className="w-2 h-2 rounded-full bg-[#404EED] animate-bounce [animation-delay:-0.3s]"></span>
             <span className="w-2 h-2 rounded-full bg-[#404EED] animate-bounce [animation-delay:-0.15s]"></span>

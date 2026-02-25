@@ -19,59 +19,34 @@ import { PanelLeftClose, PanelLeftOpen, MessageSquare, Users, Plus } from "lucid
 export default function AppSidebar() {
   const { user } = useUser();
   const router = useRouter();
-  const pathname = usePathname();
-  const { toggleSidebar, open } = useSidebar();
+  const { toggleSidebar, open, isMobile } = useSidebar(); // ✅ Get isMobile
 
   const [showSearch, setShowSearch] = useState(false);
   const [showGroup, setShowGroup] = useState(false);
-
-  const activeConvId = pathname.startsWith("/chat/")
-    ? pathname.split("/chat/")[1]
-    : null;
-
-  const isOnMobileChatPage = activeConvId && pathname !== "/chat";
 
   const resetViews = () => {
     setShowSearch(false);
     setShowGroup(false);
   };
 
-  return (
-    <Sidebar
-     collapsible="icon"
-  className={`
-    relative h-full shrink-0   {/* ADD: relative + shrink-0 */}
-    border-none text-gray-100 font-sans transition-all duration-300
-    ${isOnMobileChatPage ? "hidden md:flex" : "flex"}
-    !bg-[#0f1014]
-    [&_[data-sidebar=sidebar]]:!bg-[#0f1014]
-    [&_.bg-sidebar]:!bg-[#0f1014]
-  `}
-  style={{
-    "--sidebar": "#0f1014",
-    "--sidebar-foreground": "#f3f4f6",
-    "--sidebar-border": "rgba(255,255,255,0.05)",
-    "--sidebar-accent": "rgba(255,255,255,0.05)",
-    "--sidebar-accent-foreground": "#f3f4f6",
-    backgroundColor: "#0f1014",
-  } as React.CSSProperties}
-    >
-      
-      {/* --- BACKGROUND AMBIENCE (Z-Index 0) --- */}
+  // --- Common Content (Used for both Mobile Div and Desktop Sidebar) ---
+  const SidebarInnerContent = (
+    <>
+      {/* --- BACKGROUND AMBIENCE --- */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[-10%] left-[-20%] w-64 h-64 bg-purple-900/20 rounded-full mix-blend-screen filter blur-[60px] opacity-40 animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-20%] w-64 h-64 bg-indigo-900/10 rounded-full mix-blend-screen filter blur-[60px] opacity-30"></div>
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] pointer-events-none" />
       </div>
 
-      {/* --- HEADER (Z-Index 20) --- */}
+      {/* --- HEADER --- */}
       <SidebarHeader className="px-4 py-4 bg-white/[0.01] backdrop-blur-xl border-b border-white/5 z-20 h-20 justify-center">
         <div className="flex items-center justify-between w-full group/header">
           <Link href="/" className="flex items-center gap-3 cursor-pointer overflow-hidden relative">
             <div className="shrink-0 p-0.5 rounded-full border border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.2)] group-hover/header:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all">
               <UserButton afterSignOutUrl="/" appearance={{ elements: { userButtonAvatarBox: "w-8 h-8" }}} />
             </div>
-            {open && (
+            {(open || isMobile) && (
               <div className="flex flex-col min-w-0 transition-opacity duration-200">
                 <span className="font-bold text-gray-100 text-sm truncate group-hover/header:text-purple-300 transition-colors tracking-wide">
                   {user?.username ?? user?.fullName}
@@ -80,29 +55,29 @@ export default function AppSidebar() {
               </div>
             )}
           </Link>
-          {open && (
+          {open && !isMobile && (
             <button onClick={toggleSidebar} className="text-gray-500 hover:text-white transition-colors hover:scale-110 transform">
               <PanelLeftClose className="w-4 h-4" />
             </button>
           )}
         </div>
-        {!open && (
+        {!open && !isMobile && (
            <button onClick={toggleSidebar} className="text-gray-500 hover:text-white transition-colors mx-auto mt-2 hover:scale-110 transform">
              <PanelLeftOpen className="w-4 h-4" />
            </button>
         )}
       </SidebarHeader>
 
-      {/* --- CONTENT (Z-Index 10) --- */}
+      {/* --- CONTENT --- */}
       <SidebarContent className="p-4 z-10 overflow-hidden scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         {!showSearch && !showGroup && (
           <div className="space-y-3 mb-6">
-            <MenuButton label="Direct Messages" icon={<MessageSquare className="w-4 h-4" />} onClick={() => { if (!open) toggleSidebar(); setShowSearch(true); setShowGroup(false); }} isOpen={open} />
-            <MenuButton label="Groups" icon={<Users className="w-4 h-4" />} onClick={() => { if (!open) toggleSidebar(); setShowGroup(true); setShowSearch(false); }} isOpen={open} />
+            <MenuButton label="Direct Messages" icon={<MessageSquare className="w-4 h-4" />} onClick={() => { if (!open && !isMobile) toggleSidebar(); setShowSearch(true); setShowGroup(false); }} isOpen={open || isMobile} />
+            <MenuButton label="Groups" icon={<Users className="w-4 h-4" />} onClick={() => { if (!open && !isMobile) toggleSidebar(); setShowGroup(true); setShowSearch(false); }} isOpen={open || isMobile} />
           </div>
         )}
 
-        {open ? (
+        {(open || isMobile) ? (
             <div className="flex-1 relative h-full">
             {showSearch ? (
                 <GlassCard title="Find User" onBack={resetViews}>
@@ -133,26 +108,55 @@ export default function AppSidebar() {
         )}
       </SidebarContent>
 
-      {/* --- FOOTER (Z-Index 20) --- */}
+      {/* --- FOOTER --- */}
       <SidebarFooter className="bg-white/[0.01] backdrop-blur-md p-4 border-t border-white/5 z-20">
-        <div className={`flex items-center ${open ? "justify-between" : "justify-center"} text-[10px] font-bold tracking-widest text-gray-500`}>
+        <div className={`flex items-center ${(open || isMobile) ? "justify-between" : "justify-center"} text-[10px] font-bold tracking-widest text-gray-500`}>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            {open && <span className="text-gray-400">VOICE: OK</span>}
+            {(open || isMobile) && <span className="text-gray-400">VOICE: OK</span>}
           </div>
-          {open && <span className="opacity-30">V 1.0</span>}
+          {(open || isMobile) && <span className="opacity-30">V 1.0</span>}
         </div>
       </SidebarFooter>
+      
+      {!isMobile && <SidebarRail className="hover:bg-purple-500/30 hover:w-[4px] transition-all duration-300" />}
+    </>
+  );
 
-      <SidebarRail className="hover:bg-purple-500/30 hover:w-[4px] transition-all duration-300" />
+  // ✅ LOGIC: If Mobile, render a plain DIV (bypassing Sheet logic). If Desktop, render Sidebar component.
+  if (isMobile) {
+    return (
+      <div 
+        className="flex flex-col h-full w-full bg-[#0f1014] text-gray-100 font-sans border-r border-white/5 relative"
+        style={{ backgroundColor: "#0f1014" }}
+      >
+        {SidebarInnerContent}
+      </div>
+    );
+  }
+
+  return (
+    <Sidebar
+      collapsible="icon"
+      className="h-full border-none text-gray-100 font-sans !bg-[#0f1014]"
+      style={{
+        "--sidebar": "#0f1014",
+        "--sidebar-foreground": "#f3f4f6",
+        "--sidebar-border": "rgba(255,255,255,0.05)",
+        "--sidebar-accent": "rgba(255,255,255,0.05)",
+        "--sidebar-accent-foreground": "#f3f4f6",
+        backgroundColor: "#0f1014",
+      } as React.CSSProperties}
+    >
+      {SidebarInnerContent}
     </Sidebar>
   );
 }
 
-// --- SUB-COMPONENTS ---
+// --- SUB-COMPONENTS (Keep these unchanged) ---
 function MenuButton({ label, icon, onClick, isOpen }: { label: string; icon: React.ReactNode; onClick: () => void; isOpen: boolean }) {
     return (
         <button onClick={onClick} className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${isOpen ? "justify-start bg-white/5 hover:bg-purple-500/10 border border-white/5 hover:border-purple-500/30" : "justify-center hover:bg-white/10"}`}>
