@@ -9,7 +9,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {
           "--sidebar-width": "24rem",
           "--sidebar-width-icon": "4.5rem",
-        } as React.CSSProperties
+        } as React.CSSProperties//fixingg the type error for css properties
       }
       className="flex h-screen w-screen overflow-hidden bg-[#0f1014]"
     >

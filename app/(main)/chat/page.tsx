@@ -40,7 +40,7 @@ export default function ChatIndexPage() {
 
         {/* Subtext */}
         <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-md mb-12 tracking-wide">
-          You find yourself in a strange place. Pick a channel from the sidebar to start the conversation.
+          Heloo Vaibhav and vinit Sir🫡
         </p>
 
         {/* Action / Status Badge */}
