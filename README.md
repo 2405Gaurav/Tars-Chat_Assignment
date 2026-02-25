@@ -104,10 +104,10 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ## 🧠 Built With AI Assistance
 
-This project was built using **Claude (Anthropic)** as an AI-assisted coding tool, as permitted by the challenge rules. All code has been reviewed, understood, and can be fully explained by the author.
+This project was built using **Claude/Gemini** as an AI-assisted coding tool, as permitted by the challenge rules. All code has been reviewed, understood, and can be fully explained by the author.
 
 ---
 
 ## 📬 Submission
 
-Built by **Gaurav Thakur** for the Tars Full Stack Engineer Internship Coding Challenge 2026.
+Built by **Gaurav** for the Tars Full Stack Engineer Internship Coding Challenge 2026.
