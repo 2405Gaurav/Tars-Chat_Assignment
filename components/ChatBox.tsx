@@ -261,7 +261,7 @@ export default function ChatWindow({ conversationId }: Props) {
               return (
                 <div key={msg._id} className="group">
                   {showDateDivider && (
-                    <div className="relative flex items-center justify-center my-16">
+                    <div className="relative flex items-center justify-center my-12">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-white/5"></div>
                       </div>
