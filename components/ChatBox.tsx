@@ -84,6 +84,8 @@ export default function ChatWindow({ conversationId }: Props) {
   const handleSend = async () => {
     const content = input.trim();
     if (!content) return;
+     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+  setTyping({ conversationId, isTyping: false }).catch(() => {});
 
     setInput("");
     setSendError(null);
@@ -107,9 +109,12 @@ export default function ChatWindow({ conversationId }: Props) {
       inputRef.current.style.height = 'auto';
       inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 150) + 'px';
     }
-    setTyping({ conversationId }).catch(() => {});
+    // the settyping mutation get activated when user typess
+    setTyping({ conversationId, isTyping: true }).catch(() => {});
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {}, 2000);
+    typingTimeoutRef.current = setTimeout(() => {
+       setTyping({ conversationId, isTyping: false }).catch(() => {});
+    }, 2000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -280,7 +285,7 @@ export default function ChatWindow({ conversationId }: Props) {
                 </div>
               );
             })}
-            
+            {/* extra feature typing indicator */}
             {/* Typing Indicator */}
             {typingUsers && typingUsers.length > 0 && (
               <div className="pl-4 py-2 animate-in fade-in slide-in-from-left-2 duration-300">
@@ -294,7 +299,7 @@ export default function ChatWindow({ conversationId }: Props) {
           </>
         )}
       </div>
-
+{/* extra feature when new messsage comes notification to do downnn */}
       {/* --- FLOATING NOTIFICATION --- */}
       {showNewMessages && (
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30">

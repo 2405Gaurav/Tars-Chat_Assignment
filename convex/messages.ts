@@ -62,8 +62,11 @@ export const listMessages = query({
 
 
 export const setTyping = mutation({
-  args: { conversationId: v.id("conversations") },
-  handler: async (ctx, { conversationId }) => {
+  args: { 
+    conversationId: v.id("conversations"),
+    isTyping: v.boolean(), 
+  },
+  handler: async (ctx, { conversationId, isTyping }) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return;
 
@@ -80,31 +83,43 @@ export const setTyping = mutation({
       )
       .unique();
 
-    if (existing) {
-      await ctx.db.patch(existing._id, { lastTyped: Date.now() });
+    if (isTyping) {
+      // Add or refresh
+      if (existing) {
+        await ctx.db.patch(existing._id, { lastTyped: Date.now() });
+      } else {
+        await ctx.db.insert("typingIndicators", {
+          conversationId,
+          userId: me._id,
+          lastTyped: Date.now(),
+        });
+      }
     } else {
-      await ctx.db.insert("typingIndicators", {
-        conversationId,
-        userId: me._id,
-        lastTyped: Date.now(),
-      });
+      // 👇 Immediately delete on stop/send
+      if (existing) {
+        await ctx.db.delete(existing._id);
+      }
     }
   },
 });
 
-// Get typing indicators for a conversation
+// Get typing indicators for a conversation to shoe the typing of the other user in the chatbox
+// Convex automatically re-runs getTypingUsers whenever:
+// typingIndicators table changes
+// Or conversationId data changes
 export const getTypingUsers = query({
   args: { conversationId: v.id("conversations") },
   handler: async (ctx, { conversationId }) => {
-    const identity = await ctx.auth.getUserIdentity();
+    const identity = await ctx.auth.getUserIdentity();//auth
     if (!identity) return [];
 
-    const me = await ctx.db
+    const me = await ctx.db//we qury this to exclude the current user from the typing indicators
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     const twoSecondsAgo = Date.now() - 2000;
+    // If user stops typing → indicator auto expires after 2 seconds.
     const indicators = await ctx.db
       .query("typingIndicators")
       .withIndex("by_conversation", (q) =>

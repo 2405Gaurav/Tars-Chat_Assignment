@@ -10,13 +10,13 @@ interface Props {
 export default function TypingIndicator({ users }: Props) {
   if (users.length === 0) return null;
 
-  // Functionality preserved exactly as requested
   const names =
     users.length === 1
       ? users[0].name.split(" ")[0]
       : users.length === 2
       ? `${users[0].name.split(" ")[0]} and ${users[1].name.split(" ")[0]}`
       : `${users[0].name.split(" ")[0]} and ${users.length - 1} others`;
+    
 
   return (
     <div className="flex items-center gap-3 mb-4 px-2 animate-fade-in-up">
@@ -38,10 +38,8 @@ export default function TypingIndicator({ users }: Props) {
 
       {/* Typing Bubble & Text */}
       <div className="flex flex-col">
-         {/* The Bubble - Kept White as requested */}
         <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 self-start w-fit shadow-lg relative">
           <div className="flex gap-1 items-center h-2">
-            {/* Dots are Blue to contrast with White bubble */}
             <span className="w-2 h-2 rounded-full bg-[#404EED] animate-bounce [animation-delay:-0.3s]"></span>
             <span className="w-2 h-2 rounded-full bg-[#404EED] animate-bounce [animation-delay:-0.15s]"></span>
             <span className="w-2 h-2 rounded-full bg-[#404EED] animate-bounce"></span>
@@ -50,7 +48,7 @@ export default function TypingIndicator({ users }: Props) {
         
         {/* The Text Label */}
         <span className="text-[10px] uppercase font-bold text-white/70 mt-1.5 ml-1 tracking-widest shadow-black/10 drop-shadow-sm">
-          {names} {users.length === 1 ? "is" : "are"} typing...
+          {names} {users.length === 1 ? "is" : "are"} is typing...
         </span>
       </div>
     </div>
