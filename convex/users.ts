@@ -129,11 +129,13 @@ export const syncFromWebhook = internalMutation({
     svixSignature: v.string(),
   },
   handler: async (ctx, args) => {
+    console.log("WEBHOOK HIT");
     // In production, verify the Svix signature here
     const payload = JSON.parse(args.payloadString);
     const { type, data } = payload;
-
+    
     if (type === "user.created" || type === "user.updated") {
+      console.log("SYNC RUNNING", type);
       const clerkId = data.id;
       const name =
         `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim() ||

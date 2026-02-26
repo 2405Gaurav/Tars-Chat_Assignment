@@ -3,9 +3,13 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/SideBar";
 import { usePathname } from "next/navigation";
+import { useSyncUser } from "@/hooks/useSyncUser";
+import { usePresence } from "@/hooks/usePresence";
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  useSyncUser();
+  usePresence();
 
   // "Mobile Conversation Mode": URL is /chat/some-id
   // If false, we are in "Index Mode": URL is /chat
