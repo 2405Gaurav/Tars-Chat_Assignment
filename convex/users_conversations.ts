@@ -103,7 +103,7 @@ const lastReadTime = readReceipt?.lastReadTime ?? 0;
 
 const unreadMessage = await ctx.db
   .query("messages")
-  .withIndex("by_conversation_time", (q) =>
+  .withIndex("by_conversation", (q) =>
     q.eq("conversationId", convo._id)
      .gt("_creationTime", lastReadTime)
   )
