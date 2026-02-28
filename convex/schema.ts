@@ -28,20 +28,21 @@ export default defineSchema({
     }).index("by_last_message", ["lastMessageTime"]),
 
 ///messsage schenmaaa
-    messages: defineTable({
-    conversationId: v.id("conversations"),
-    senderId: v.id("users"),
-    content: v.string(),
-    isDeleted: v.boolean(),
-    reactions: v.optional(
-      v.array(
-        v.object({
-          emoji: v.string(),
-          userIds: v.array(v.id("users")),
-        })
-      )
-    ),
-  }).index("by_conversation", ["conversationId"]),
+  messages: defineTable({
+  conversationId: v.id("conversations"),
+  senderId: v.id("users"),
+  content: v.string(),
+  isDeleted: v.boolean(),
+  reactions: v.optional(
+    v.array(
+      v.object({
+        emoji: v.string(),
+        userIds: v.array(v.id("users")),
+      })
+    )
+  ),
+})
+.index("by_conversation", ["conversationId"]),
 
    ///extra feature ,adding the read receipts, to  
    //   show the read receipts when the user has read the message
@@ -51,7 +52,7 @@ export default defineSchema({
     lastReadTime: v.number(),
   })
     .index("by_conversation_user", ["conversationId", "userId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"]),  
 
 
 

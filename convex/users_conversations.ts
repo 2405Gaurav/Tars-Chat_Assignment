@@ -70,6 +70,7 @@ export const listConversations = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return [];
 
+    //for verification
     const me = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
@@ -91,15 +92,24 @@ export const listConversations = query({
         );
 
         // Get unread count
-        const readReceipt = await ctx.db
-          .query("readReceipts")
-          .withIndex("by_conversation_user", (q) =>
-            q.eq("conversationId", convo._id).eq("userId", me._id)
-          )
-          .unique();
+    const readReceipt = await ctx.db
+  .query("readReceipts")
+  .withIndex("by_conversation_user", (q) =>
+    q.eq("conversationId", convo._id).eq("userId", me._id)
+  )
+  .unique();
 
-        const lastReadTime = readReceipt?.lastReadTime ?? 0;
+const lastReadTime = readReceipt?.lastReadTime ?? 0;
 
+const unreadMessage = await ctx.db
+  .query("messages")
+  .withIndex("by_conversation_time", (q) =>
+    q.eq("conversationId", convo._id)
+     .gt("_creationTime", lastReadTime)
+  )
+  .filter((q) => q.neq(q.field("senderId"), me._id))
+  .first();
+const hasUnread = !!unreadMessage;
         // Count messages after lastReadTime not from me
         const messages = await ctx.db
           .query("messages")
@@ -119,6 +129,7 @@ export const listConversations = query({
           ...convo,
           participants: participants.filter(Boolean),
           unreadCount,
+          hasUnread,
           me,
         };
       })
@@ -151,5 +162,45 @@ export const createGroup = mutation({
       groupName,
       lastMessageTime: Date.now(),
     });
+  },
+});
+
+
+//this will be called when the userr opem  the caht
+
+export const markAsRead = mutation({
+  args: { conversationId: v.id("conversations") },
+  handler: async (ctx, { conversationId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique();
+
+    if (!me) throw new Error("User not found");
+
+    const existing = await ctx.db
+      .query("readReceipts")
+      .withIndex("by_conversation_user", (q) =>
+        q.eq("conversationId", conversationId)
+         .eq("userId", me._id)
+      )
+      .unique();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        lastReadTime: Date.now(),
+      });
+    } else {
+      await ctx.db.insert("readReceipts", {
+        conversationId,
+        userId: me._id,
+        lastReadTime: Date.now(),
+      });
+    }
   },
 });

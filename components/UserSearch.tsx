@@ -20,6 +20,7 @@ export default function UserSearch({ onClose }: Props) {
   const getOrCreateDM = useMutation(api.users_conversations.getOrCreateDM);
 
   const users = useQuery(api.users.listAllUsers, { search: search || undefined });
+  //here now i have the hasread prop and will use it to get the notification 
 
   const handleSelectUser = async (userId: Id<"users">) => {
     try {
@@ -30,6 +31,8 @@ export default function UserSearch({ onClose }: Props) {
       console.error(err);
     }
   };
+
+  console.log(users);
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#0f1014] h-full text-gray-100 font-sans relative selection:bg-purple-500/30 selection:text-white">
@@ -106,6 +109,7 @@ export default function UserSearch({ onClose }: Props) {
                 onClick={() => handleSelectUser(u._id)}
                 className="w-full flex items-center gap-3 p-3 hover:bg-[#1a1b23]/60 hover:backdrop-blur-md rounded-xl transition-all text-left group border border-transparent hover:border-purple-500/30 hover:shadow-[0_0_15px_rgba(147,51,234,0.1)] relative overflow-hidden"
               >
+                
                 {/* Avatar */}
                 <div className="relative shrink-0">
                   {u.imageUrl ? (
@@ -121,6 +125,12 @@ export default function UserSearch({ onClose }: Props) {
                       {u.name[0]?.toUpperCase()}
                     </div>
                   )}
+
+                  {/* 🔴 Unread Notification (Top Right) */}
+                  {u.hasUnread && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#0f1014] shadow-[0_0_8px_rgba(239,68,68,0.7)]" />
+                  )}
+
                   {/* Status Dot */}
                   {u.isOnline && (
                     <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-[3px] border-[#0f1014]"></div>

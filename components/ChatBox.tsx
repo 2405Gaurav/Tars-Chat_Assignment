@@ -24,6 +24,7 @@ export default function ChatWindow({ conversationId }: Props) {
   const [sendError, setSendError] = useState<string | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [showNewMessages, setShowNewMessages] = useState(false);
+
   
   // Refs
   const prevMessageCountRef = useRef(0);
@@ -39,6 +40,7 @@ export default function ChatWindow({ conversationId }: Props) {
   const typingUsers = useQuery(api.messages.getTypingUsers, { conversationId });
 
   const sendMessage = useMutation(api.messages.sendMessage);
+
   const setTyping = useMutation(api.messages.setTyping);
   const markAsRead = useMutation(api.messages.markAsRead);
 
@@ -62,6 +64,9 @@ export default function ChatWindow({ conversationId }: Props) {
   };
 
   useEffect(() =>{
+    markAsRead({ conversationId }).catch(() => {});
+
+
     if (messages) {
       markAsRead({ conversationId }).catch(() => {});
       const count = messages.length;
@@ -79,7 +84,7 @@ export default function ChatWindow({ conversationId }: Props) {
       }
       prevMessageCountRef.current = count;
     }
-  }, [messages, conversationId, markAsRead, isAtBottom, scrollToBottom]);
+  }, [messages, conversationId, markAsRead, isAtBottom, scrollToBottom,]);
 
   const handleSend = async () => {
     const content = input.trim();

@@ -13,7 +13,7 @@ export default function SignInPage() {
           <h1 className="text-3xl font-bold text-gray-900">Tars Chat</h1>
           <p className="text-gray-500 mt-1">Real-time messaging, reimagined</p>
         </div>
-        <SignIn afterSignInUrl="/chat" />
+        <SignIn afterSignInUrl="/chat"/>
       </div>
     </div>
   );

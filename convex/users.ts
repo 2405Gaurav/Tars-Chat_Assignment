@@ -52,27 +52,111 @@ export const upsertUser = mutation({
 //to get the connect witht other user ,we will nedd to list all the user ,
 
 // List all users except the current one
+//now i have added ithe nitification in this ,for each user iam iam also going to the reciept and checking the last messaf seen 
+
+
+
 export const listAllUsers = query({
   args: { search: v.optional(v.string()) },
   handler: async (ctx, { search }) => {
     const identity = await ctx.auth.getUserIdentity();
-    console.log("listUsers - identity:", identity?.subject);
     if (!identity) return [];
 
+    const me = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique();
+
+    if (!me) return [];
+
     const allUsers = await ctx.db.query("users").collect();
-    console.log("listUsers - all users count:", allUsers.length);
-    console.log("listUsers - all users:", allUsers);
-    const others = allUsers.filter((u) => u.clerkId !== identity.subject);
-    console.log("listUsers - others count:", others.length);
+    const others = allUsers.filter(
+      (u) => u.clerkId !== identity.subject
+    );
 
-    if (search && search.trim()) {
-      const lower = search.toLowerCase();
-      return others.filter((u) => u.name.toLowerCase().includes(lower));
-    }
+    const filtered =
+      search && search.trim()
+        ? others.filter((u) =>
+            u.name.toLowerCase().includes(search.toLowerCase())
+          )
+        : others;
 
-    return others;
+    const conversations = await ctx.db
+      .query("conversations")
+      .collect();
+
+    const enriched = await Promise.all(
+      filtered.map(async (user) => {
+        const dm = conversations.find(
+          (c) =>
+            !c.isGroup &&
+            c.participants.length === 2 &&
+            c.participants.includes(me._id) &&
+            c.participants.includes(user._id)
+        );
+
+        if (!dm) {
+          return { ...user, hasUnread: false };
+        }
+
+        const readReceipt = await ctx.db
+          .query("readReceipts")
+          .withIndex("by_conversation_user", (q) =>
+            q.eq("conversationId", dm._id)
+             .eq("userId", me._id)
+          )
+          .unique();
+
+        const lastReadTime = readReceipt?.lastReadTime ?? 0;
+
+        const unread = await ctx.db
+          .query("messages")
+          .withIndex("by_conversation", (q) =>
+            q.eq("conversationId", dm._id)
+             .gt("_creationTime", lastReadTime)
+          )
+          .filter((q) =>
+            q.neq(q.field("senderId"), me._id)
+          )
+          .first();
+
+        return {
+          ...user,
+          hasUnread: !!unread,
+        };
+      })
+    );
+
+    return enriched;
   },
 });
+
+
+
+
+// export const listAllUsers = query({
+//   args: { search: v.optional(v.string()) },
+//   handler: async (ctx, { search }) => {
+//     const identity = await ctx.auth.getUserIdentity();
+//     console.log("listUsers - identity:", identity?.subject);
+//     if (!identity) return [];
+
+//     const allUsers = await ctx.db.query("users").collect();
+//     console.log("listUsers - all users count:", allUsers.length);
+//     console.log("listUsers - all users:", allUsers);
+//     const others = allUsers.filter((u) => u.clerkId !== identity.subject);
+//     console.log("listUsers - others count:", others.length);
+
+//     if (search && search.trim()) {
+//       const lower = search.toLowerCase();
+//       return others.filter((u) => u.name.toLowerCase().includes(lower));
+//     }
+
+//     return others;
+//   },
+// });
 
 
 export const setPresence = mutation({
