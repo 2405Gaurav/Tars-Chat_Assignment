@@ -1,7 +1,7 @@
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
-
+//this is to detect if the user is on a mobile device, we use a media query to check if the screen width is less than the mobile breakpoint. We also listen for changes to the media query so that we can update the state when the user resizes their window.
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
