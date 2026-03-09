@@ -203,7 +203,10 @@ export const getCurrentUser = query({
 });
 
 
-
+//when a users in created,updated or deleted in clerk the clerk will send a webhook 
+//to our convex backend and then we will update our convex DB accordingly,
+//so that we have all the user info in our DB and we can use it to display the user info in our frontend without having to call the clerk API every time.
+// This ensures your database mirrors Clerk's user records.
 
 export const syncFromWebhook = internalMutation({
   args: {
@@ -236,7 +239,7 @@ export const syncFromWebhook = internalMutation({
       if (existing) {
         await ctx.db.patch(existing._id, { name, email, imageUrl });
       } else {
-        await ctx.db.insert("users", {
+         await ctx.db.insert("users", {
           clerkId,
           name,
           email,
