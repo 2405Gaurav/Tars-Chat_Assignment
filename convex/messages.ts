@@ -25,7 +25,7 @@ export const sendMessage = mutation({
     });
 
     // Update conversation last message
-    await ctx.db.patch(conversationId, {
+    await ctx.db.patch(conversationId,{
       lastMessageTime: Date.now(),
       lastMessagePreview: content.slice(0, 100),
     });
@@ -35,6 +35,7 @@ export const sendMessage = mutation({
     return msgId;
   },
 });
+// Convex separates mutations (write operations) and queries (read operations).
 
 // List messages in a conversation
 export const listMessages = query({
@@ -47,8 +48,10 @@ export const listMessages = query({
       )
       .order("asc")
       .collect();
-
+//reasone for  usign the promise here is --> all queries run concurrently
+// This solves a concurrency problem when performing multiple asynchronous database reads.
     const enriched = await Promise.all(
+      // Promise.all() waits for all promises to finish in parallel
       messages.map(async (msg) => {
         const sender = await ctx.db.get(msg.senderId);
         return { ...msg, sender };

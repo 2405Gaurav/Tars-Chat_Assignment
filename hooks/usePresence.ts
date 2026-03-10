@@ -17,6 +17,11 @@ export function usePresence() {
     const handleVisibilityChange = () => {
       setPresence({ isOnline: !document.hidden });
     };
+    // This part tracks when the user switches tabs. 
+    // so when the user switch to another tab or minimize the browser,
+    //we set their presence to offline, and when they come back we set it to online.
+    //We also have a fallback interval that sets the user to online every 30 seconds if they are active, 
+    //just in case the visibility change event doesn't fire for some reason.
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 

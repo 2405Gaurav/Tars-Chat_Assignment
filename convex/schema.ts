@@ -12,7 +12,7 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     lastSeen: v.number(),
     isOnline: v.boolean(),//will be true when the user logged in,will implemetn laterrr
-  })
+  }) 
     .index("by_clerk_id", ["clerkId"])
     .index("by_email", ["email"]),
     
@@ -25,7 +25,12 @@ export default defineSchema({
         groupName: v.optional(v.string()),
         lastMessageTime: v.optional(v.number()),
         lastMessagePreview: v.optional(v.string()),
-    }).index("by_last_message", ["lastMessageTime"]),
+        dmKey: v.optional(v.string()),//previously we were getting all the conversations and 
+        // then filtering them to find the existing DM, but this is not efficient,
+        //  so we will add a dmKey which will be a combination of the user ids in the DM, 
+        // so that we can easily find the existing DM without having to get all the conversations and filter them.
+    }).index("by_last_message", ["lastMessageTime"])
+    .index("by_dm_key", ["dmKey"]), // NEW INDEX
 
 ///messsage schenmaaa
   messages: defineTable({

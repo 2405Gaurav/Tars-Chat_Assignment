@@ -109,22 +109,28 @@ export const listAllUsers = query({
           )
           .unique();
 
-        const lastReadTime = readReceipt?.lastReadTime ?? 0;
+        const lastReadTime = readReceipt?.lastReadTime ?? 0;//when is the last time i have read the message from this conversation
+        //and then i compare it with the message creation time for this conversation ,not send by me 
+        
+        
+        
 
         const unread = await ctx.db
           .query("messages")
           .withIndex("by_conversation", (q) =>
             q.eq("conversationId", dm._id)
              .gt("_creationTime", lastReadTime)
-          )
+          )//here we are getting the number of messages in this conversation which are created after the last read time,
+          // and then we are filtering out the messages which are sent by me, because those are not unread for me
           .filter((q) =>
-            q.neq(q.field("senderId"), me._id)
+            q.neq(q.field("senderId"), me._id)//filter that the messssage is not send by me ,
           )
           .first();
 
         return {
           ...user,
-          hasUnread: !!unread,
+          hasUnread: !!unread,//--> !! here is used to convert the unread message object into a boolean value, 
+          // indicating whether there are any unread messages from that user.
         };
       })
     );
@@ -239,7 +245,7 @@ export const syncFromWebhook = internalMutation({
       if (existing) {
         await ctx.db.patch(existing._id, { name, email, imageUrl });
       } else {
-         await ctx.db.insert("users", {
+        await ctx.db.insert("users", {
           clerkId,
           name,
           email,
@@ -248,12 +254,12 @@ export const syncFromWebhook = internalMutation({
           lastSeen: Date.now(),
         });
       }
-    } else if (type === "user.deleted") {
+    } else if (type === "user.deleted"){
       const existing = await ctx.db
         .query("users")
         .withIndex("by_clerk_id", (q) => q.eq("clerkId", data.id))
         .unique();
-      if (existing) {
+      if (existing){
         await ctx.db.delete(existing._id);
       }
     }

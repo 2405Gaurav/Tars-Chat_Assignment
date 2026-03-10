@@ -8,28 +8,40 @@ export const getOrCreateDM = mutation({
   handler: async (ctx, { otherUserId }) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
-
+    
     const me = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
+    .query("users")
+    .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+    .unique();
     if (!me) throw new Error("User not found");
+    const [a, b] = [me._id, otherUserId].sort();
+const dmKey = `${a}_${b}`;
+    
+    // Find existing DM,
+    //but here we are getting all the conversations and them filtering them
+    // and this is a  problem in scalling,will add the indexing here 
 
-    // Find existing DM
-    const allConvos = await ctx.db.query("conversations").collect();
-    const existing = allConvos.find(
-      (c) =>
-        !c.isGroup &&
-        c.participants.length === 2 &&
-        c.participants.includes(me._id) &&
-        c.participants.includes(otherUserId)
-    );
+    // const allConvos = await ctx.db.query("conversations").collect();
+    
+
+    // const existing = allConvos.find(
+    //   (c) =>
+    //     !c.isGroup &&
+    //     c.participants.length === 2 &&
+    //     c.participants.includes(me._id) &&
+    //     c.participants.includes(otherUserId)
+    // );
+    const existing = await ctx.db
+  .query("conversations")
+  .withIndex("by_dm_key", (q) => q.eq("dmKey", dmKey))
+  .unique();
 
     if (existing) return existing._id;
 
     return await ctx.db.insert("conversations", {
       participants: [me._id, otherUserId],
       isGroup: false,
+      dmKey,
       lastMessageTime: Date.now(),
     });
   },
@@ -43,7 +55,8 @@ export const getConversation = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
 
-    const conversation = await ctx.db.get(conversationId);
+    const conversation = await ctx.db.get(conversationId);//--> direct lookup by primary key, as Primary key lookup → O(1)
+    // no need to filter through all conversations
     if (!conversation) return null;
 
     const participants = await Promise.all(
@@ -64,6 +77,7 @@ export const getConversation = query({
 });
 
 
+//not using this one currently
 export const listConversations = query({
   args: {},
   handler: async (ctx) => {
@@ -91,7 +105,7 @@ export const listConversations = query({
           convo.participants.map((id) => ctx.db.get(id))
         );
 
-        // Get unread count
+        // Get unread count 
     const readReceipt = await ctx.db
   .query("readReceipts")
   .withIndex("by_conversation_user", (q) =>
