@@ -46,6 +46,8 @@ export default function ChatWindow({ conversationId }: Props) {
 
   const currentUser = conversation?.me;
 
+  
+
   // --- Logic: Scroll & Message Handling ---
   const scrollToBottom = useCallback((smooth = true) => {
     if (!scrollContainerRef.current || !messagesEndRef.current) return;

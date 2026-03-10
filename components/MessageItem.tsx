@@ -23,7 +23,7 @@ export default function MessageBubble({
   isSender,
   reactionOptions,
   viewerId,
-}: MessageBubbleProps) {
+}: MessageBubbleProps){
   const reactToMessage = useMutation(api.messages.toggleReaction);
   const deleteMessage = useMutation(api.messages.deleteMessage);
   const [isDeleting, setIsDeleting] = useState(false);
