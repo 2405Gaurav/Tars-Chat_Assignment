@@ -65,13 +65,16 @@ export default function ChatWindow({ conversationId }: Props) {
     if (atBottom) setShowNewMessages(false);
   };
 
+
   useEffect(() =>{
     markAsRead({ conversationId }).catch(() => {});
 
 
     if (messages) {
       markAsRead({ conversationId }).catch(() => {});
+      // console.log(count);
       const count = messages.length;
+      //here the  const count,it can not be used before its declaration as it will lead to reference error due to hointing 
       const prevCount = prevMessageCountRef.current;
 
       if (initialLoadRef.current && count > 0) {
@@ -87,7 +90,8 @@ export default function ChatWindow({ conversationId }: Props) {
       prevMessageCountRef.current = count;
     }
   }, [messages, conversationId, markAsRead, isAtBottom, scrollToBottom,]);
-
+  //  handleSend(  )
+   //as we hvae used the const here so it will also give erroor for the blockscoped hoisting 
   const handleSend = async () => {
     const content = input.trim();
     if (!content) return;

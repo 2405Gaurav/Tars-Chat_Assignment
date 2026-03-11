@@ -38,23 +38,27 @@ export const sendMessage = mutation({
 // Convex separates mutations (write operations) and queries (read operations).
 
 // List messages in a conversation
+// ctx.db is the database interface.
 export const listMessages = query({
   args: { conversationId: v.id("conversations") },
   handler: async (ctx, { conversationId }) => {
     const messages = await ctx.db
-      .query("messages")
-      .withIndex("by_conversation", (q) =>
-        q.eq("conversationId", conversationId)
-      )
-      .order("asc")
-      .collect();
-//reasone for  usign the promise here is --> all queries run concurrently
-// This solves a concurrency problem when performing multiple asynchronous database reads.
-    const enriched = await Promise.all(
-      // Promise.all() waits for all promises to finish in parallel
-      messages.map(async (msg) => {
-        const sender = await ctx.db.get(msg.senderId);
+    .query("messages")
+    .withIndex("by_conversation", (q) =>
+      q.eq("conversationId", conversationId)
+  )
+  .order("asc")
+  .collect();
+  //reasone for  usign the promise here is --> all queries run concurrently
+  // This solves a concurrency problem when performing multiple asynchronous database reads.
+  const enriched = await Promise.all(
+// Promise.all([p1,p2,p3])   // Runs promises in parallel.
+    // Promise.all() waits for all promises to finish in parallel
+    messages.map(async (msg) => {
+      const sender = await ctx.db.get(msg.senderId);
+      // ctx.db.get() is asynchronous. 
         return { ...msg, sender };
+        // and the promise does this --> Time:max(p1,p2,p3)
       })
     );
 
@@ -69,17 +73,19 @@ export const setTyping = mutation({
     conversationId: v.id("conversations"),
     isTyping: v.boolean(), 
   },
+  // "user X is typing in conversation Y"
   handler: async (ctx, { conversationId, isTyping }) => {
     const identity = await ctx.auth.getUserIdentity();//
     if (!identity) return;
 
-    const me = await ctx.db
+    const me = await ctx.db 
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
     if (!me) return;
 
     const existing = await ctx.db
+    // one typing record per user per conversation
       .query("typingIndicators")
       .withIndex("by_conversation_user", (q) =>
         q.eq("conversationId", conversationId).eq("userId", me._id)
@@ -91,7 +97,7 @@ export const setTyping = mutation({
       if (existing) {
         await ctx.db.patch(existing._id, { lastTyped: Date.now() });
       } else {
-        await ctx.db.insert("typingIndicators", {
+        await ctx.db.insert("typingIndicators",{
           conversationId,
           userId: me._id,
           lastTyped: Date.now(),
@@ -133,12 +139,16 @@ export const getTypingUsers = query({
     const activeTypers = indicators.filter(
       (i) => i.lastTyped > twoSecondsAgo && i.userId !== me?._id
     );
+    // filter() :: takes an array -> runs a condition on every element -> keeps only elements where condition is true
 
     const users = await Promise.all(
       activeTypers.map((i) => ctx.db.get(i.userId))
     );
+    // map() :: takes an array -> transforms every element -> returns a new array
 
     return users.filter(Boolean);
+    // This is a cleanup step. It removes invalid values like null or undefined from the users array.
+    // Boolean(value) converts any value into true or false.
   },
 });
 
@@ -229,6 +239,7 @@ export const toggleReaction = mutation({
 
 //at last deelte the message ,gtgtgt heheh 
 export const deleteMessage = mutation({
+  // v --> it is a validator utility that is used for the validation of the input data and it is provided by convex
   args: { messageId: v.id("messages") },
   handler: async (ctx, { messageId }) => {
     const identity = await ctx.auth.getUserIdentity();

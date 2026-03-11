@@ -123,7 +123,7 @@ export const listAllUsers = query({
           )//here we are getting the number of messages in this conversation which are created after the last read time,
           // and then we are filtering out the messages which are sent by me, because those are not unread for me
           .filter((q) =>
-            q.neq(q.field("senderId"), me._id)//filter that the messssage is not send by me ,
+            q.neq(q.field("senderId"), me._id)//filter that the messssage is not send by me ,i 
           )
           .first();
 
