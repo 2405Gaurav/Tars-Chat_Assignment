@@ -2,10 +2,13 @@
 //we will send the conversation id ,and depending on it the chat/msg box will render
 "use client";
 
+
+// useSyncUser exists to synchronize the authenticated user from Clerk into your application database managed by Convex.
 import { use } from "react";
 import ChatBox from "@/components/ChatBox";
 import { Id } from "@/convex/_generated/dataModel";
-
+// This hook is not for detecting changes.
+// It is mainly a client-side safety sync to ensure the user exists in your Convex DB when the user enters the app.
 export default function ConversationPage({
   params,
 }: {

@@ -223,9 +223,11 @@ export const syncFromWebhook = internalMutation({
   },
   handler: async (ctx, args) => {
     console.log("WEBHOOK HIT");
+    console.log("WEBHOOK HIT");
+    console.log("WEBHOOK HIT");
     // In production, verify the Svix signature here
     const payload = JSON.parse(args.payloadString);
-    const { type, data } = payload;
+    const { type, data } = payload;//deconstructuring the payload to get the type of the event and the data of the user
     
     if (type === "user.created" || type === "user.updated") {
       console.log("SYNC RUNNING", type);

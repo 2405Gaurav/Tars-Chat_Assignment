@@ -19,6 +19,7 @@ http.route({
           svixId: headers.get("svix-id") ?? "",
           svixTimestamp: headers.get("svix-timestamp") ?? "",
           svixSignature: headers.get("svix-signature") ?? "",
+          // These verify the webhook.svix
         }
       );
 

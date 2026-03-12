@@ -57,6 +57,9 @@ export const listMessages = query({
     messages.map(async (msg) => {
       const sender = await ctx.db.get(msg.senderId);
       // ctx.db.get() is asynchronous. 
+
+      //spread operator --> it copies all properties from msg into a new object, 
+      // and then we add a new property sender to that object. 
         return { ...msg, sender };
         // and the promise does this --> Time:max(p1,p2,p3)
       })
